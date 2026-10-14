@@ -233,6 +233,9 @@ static const preset_t PHYS_PRESETS[] = {
     /* SYMP: {MODEL, CHRD, BRIT, DAMP, SYMP, ACC, BUZZ, EXC} */
     {"DRONE STRING", {PM_SYMP, 127, 80, 88, 64, 100, 92, 0}, {0, 100, 127, 90}, 0, 0, FX(0, 10, 20, 50), PAT(3)},
     {"HARP", {PM_SYMP, 8, 62, 74, 60, 90, 0, 0}, {0, 100, 127, 80}, 0, 0, FX(0, 20, 20, 60), PAT(3)},
+    /* Simorgh: santur - bright metal strings, octave/unison courses ringing along, long decay, hard mezrab */
+    {"SANTUR", {PM_SYMP, 0, 112, 118, 72, 120, 20, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
+    {"SANTUR STR", {PM_STRING, 70, 108, 118, 18, 120, 0, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 20, 25, 50), PAT(3)},
 };
 
 static const engine_t ENG_PHYS = {
