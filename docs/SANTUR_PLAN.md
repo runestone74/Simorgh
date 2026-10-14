@@ -11,7 +11,7 @@ Simorgh är en fork av [Felucca](https://github.com/hugelton/Felucca) (GPL-3.0) 
 2. **Grafik** i `assets/simorgh/`: illustration, banner, startskärmsförhandsvisning och santur-ikon. Allt är ritat med kod, och den persiska texten är satt i Vazirmatn (OFL), men bara i bannern.
 3. **FM6-presets** (egna, inga DX7-ROM-data): `SANTUR FM` (F9), `DULCIMER` (F10) och `HARPSI SNT` (F11).
    OBS: SLOT-index OWN och B1–B32 flyttas tre steg, så sparade projekt från Felucca som använder bank- eller OWN-patchar kan peka fel.
-4. **PHYS-presets:** `SANTUR` (SYMP med medsvängande strängar) och `SANTUR STR` (STRNG).
+4. **PHYS-modell SANTR** (`eng_phys.c`): kör med huvudsträng + två strängar ±CRSE (upp till ~16 cent, svävning) + oktavsträng som klingar med (SYMP), mezrab-anslag (MZRB, filt..trä) och tämjd ljushet. Preset `SANTUR` (ny standard), `SANTUR OLD` (gamla SYMP-varianten) och `SANTUR STR`.
 5. **Emulatorsidan:** lapis, turkos och guld, med banner och titel "Simorgh · سیمرغ".
 6. **`firmware/src/dastgah.h`:** dastgah-namnen. De är inte inkopplade än.
 

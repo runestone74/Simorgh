@@ -27,7 +27,7 @@
 #endif
 
 static int fails;
-static const char *const MN[PM_COUNT] = {"MODAL", "STRING", "MEMB", "SYMP"};
+static const char *const MN[PM_COUNT] = {"MODAL", "STRING", "MEMB", "SYMP", "SANTUR"};
 
 /* ------------------------------------------------------------ stability --- */
 typedef struct { int32_t peak; int64_t sum; uint32_t n, clamp; int32_t tail; } st_t;
@@ -41,7 +41,7 @@ static void stab_render(uint32_t md, uint32_t note, const int32_t *q, uint32_t n
     int32_t y[CTL], ax[CTL];
     memset(r, 0, sizeof *r);
     phys_reset(&S, md, 0x2468ACEu + note);
-    if (md == PM_STRING || md == PM_SYMP) {
+    if (md == PM_STRING || md >= PM_SYMP) {
         S.u.s.trig = 1;
     } else {
         S.u.m.trig = 1;
@@ -105,7 +105,7 @@ static void stability(void)
                             for (e = 0; e < 2u; e++) {
                                 /* STRC, BRIT, DAMP, POS, ACC, BOW, EXC */
                                 int32_t q[7] = {STRC[a], C2[b], (int32_t)c * 32767, C2[d], 65535, C2[e] * 2 / 5, 65535};
-                                uint32_t note = NOTES[ni], strg = md == PM_STRING || md == PM_SYMP;
+                                uint32_t note = NOTES[ni], strg = md == PM_STRING || md >= PM_SYMP;
                                 st_t r;
                                 char why[160] = "";
                                 uint32_t n = FS * 3u / 2u;
@@ -113,7 +113,7 @@ static void stability(void)
                                 cases++;
                                 if (r.peak > worst[md])
                                     worst[md] = r.peak;
-                                if (r.peak > (md == PM_SYMP ? 32 << 20 : strg ? 24 << 20 : 16 << 20))
+                                if (r.peak > (md >= PM_SYMP ? 32 << 20 : strg ? 24 << 20 : 16 << 20))
                                     snprintf(why + strlen(why), sizeof why - strlen(why), " peak %.1f;",
                                              r.peak / 1048576.0);
                                 if (r.clamp)
@@ -121,7 +121,7 @@ static void stability(void)
                                 if (note >= 24u && llabs(r.sum / (int64_t)r.n) > r.peak / 50 + 64)
                                     snprintf(why + strlen(why), sizeof why - strlen(why), " DC %.4f (peak %.3f);",
                                              (double)(r.sum / (int64_t)r.n) / 1048576.0, r.peak / 1048576.0);
-                                if (note >= 48u && !c && (!e || md >= PM_MEMB) && r.tail * (md == PM_SYMP ? 5 : 10) > r.peak && r.tail > 64)
+                                if (note >= 48u && !c && (!e || md >= PM_MEMB) && r.tail * (md >= PM_SYMP ? 5 : 10) > r.peak && r.tail > 64)
                                     snprintf(why + strlen(why), sizeof why - strlen(why), " not decayed (tail %.4f of %.4f);",
                                              r.tail / 1048576.0, r.peak / 1048576.0);
                                 if (why[0]) {
@@ -309,7 +309,7 @@ static void demo_write(const char *dir, const char *name, uint32_t secs, void (*
 }
 
 /* a phrase per preset: (time in 1/8 s, note, length in 1/8 s, velocity); chords share a time */
-#define NPHRASE 11
+#define NPHRASE 12
 static const uint8_t PHRASE[NPHRASE][24][4] = {
     {{0, 84, 6, 110}, {6, 91, 6, 80}, {12, 96, 6, 100}, {20, 88, 8, 70}, {28, 79, 10, 110}, {29, 86, 10, 90},
      {30, 91, 10, 90}, {44, 84, 12, 120}},                                                  /* BELL TREE */
@@ -332,7 +332,8 @@ static const uint8_t PHRASE[NPHRASE][24][4] = {
     {{0, 48, 6, 100}, {1, 55, 6, 90}, {2, 60, 6, 90}, {3, 64, 6, 100}, {4, 67, 6, 90}, {5, 72, 6, 100},
      {12, 53, 6, 100}, {13, 57, 6, 90}, {14, 60, 6, 90}, {15, 65, 6, 100}, {16, 69, 6, 90}, {17, 72, 8, 110},
      {24, 76, 8, 110}}, /* HARP */
-    {{0, 62, 1, 120}, {1, 62, 1, 70}, {2, 62, 1, 90}, {3, 62, 1, 70}, {4, 63, 2, 110}, {6, 65, 2, 100}, {8, 67, 4, 120}, {12, 65, 2, 90}, {14, 63, 2, 100}, {16, 62, 6, 120}, {16, 50, 6, 100}, {24, 74, 2, 110}, {26, 72, 2, 90}, {28, 70, 6, 110}},   /* SANTUR */
+    {{0, 62, 1, 120}, {1, 62, 1, 70}, {2, 62, 1, 90}, {3, 62, 1, 70}, {4, 63, 2, 110}, {6, 65, 2, 100}, {8, 67, 4, 120}, {12, 65, 2, 90}, {14, 63, 2, 100}, {16, 62, 6, 120}, {16, 50, 6, 100}, {24, 74, 2, 110}, {26, 72, 2, 90}, {28, 70, 6, 110}},   /* SANTUR (new model) */
+    {{0, 62, 1, 120}, {1, 62, 1, 70}, {2, 62, 1, 90}, {3, 62, 1, 70}, {4, 63, 2, 110}, {6, 65, 2, 100}, {8, 67, 4, 120}, {12, 65, 2, 90}, {14, 63, 2, 100}, {16, 62, 6, 120}, {16, 50, 6, 100}, {24, 74, 2, 110}, {26, 72, 2, 90}, {28, 70, 6, 110}},   /* SANTUR OLD */
     {{0, 62, 1, 120}, {1, 62, 1, 70}, {2, 62, 1, 90}, {3, 62, 1, 70}, {4, 63, 2, 110}, {6, 65, 2, 100}, {8, 67, 4, 120}, {12, 65, 2, 90}, {14, 63, 2, 100}, {16, 62, 6, 120}, {16, 50, 6, 100}, {24, 74, 2, 110}, {26, 72, 2, 90}, {28, 70, 6, 110}}    /* SANTUR STR */
 };
 static void play_preset(uint32_t f, uint32_t pi)
