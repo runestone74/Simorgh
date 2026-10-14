@@ -118,6 +118,31 @@ PATCHES = [
         op(ol=0),
         op(ol=0)],
         fb=0, lpms=0)),
+    # Simorgh fork: original santur-like voices (mezrab strike, inharmonic metal, detuned courses, long ring)
+    ("SANTUR FM", voice("SANTUR FM", 5, [
+        op(r=(99, 28, 20, 38), l=(99, 82, 0, 0), ol=97, kvs=2, rs=2),
+        op(r=(99, 72, 40, 45), l=(99, 40, 0, 0), ol=72, fc=3, ff=50, kvs=5, rs=3),
+        op(r=(99, 30, 22, 38), l=(99, 80, 0, 0), ol=93, det=10, kvs=2, rs=2),
+        op(r=(99, 80, 45, 50), l=(99, 30, 0, 0), ol=66, fc=7, ff=8, kvs=6, rs=3),
+        op(r=(99, 34, 24, 40), l=(99, 78, 0, 0), ol=86, det=4, kvs=1, rs=2),
+        op(r=(99, 88, 50, 50), l=(99, 20, 0, 0), ol=70, fc=1, ff=41, kvs=5)],
+        fb=4, lpms=0)),
+    ("DULCIMER", voice("DULCIMER", 2, [
+        op(r=(99, 32, 24, 40), l=(99, 80, 0, 0), ol=96, kvs=2, rs=2),
+        op(r=(99, 65, 40, 45), l=(99, 45, 0, 0), ol=78, fc=2, ff=0, det=9, kvs=5, rs=3),
+        op(r=(99, 30, 22, 40), l=(99, 82, 0, 0), ol=92, det=4, kvs=2, rs=2),
+        op(r=(99, 70, 45, 48), l=(99, 35, 0, 0), ol=72, fc=4, ff=27, kvs=5),
+        op(r=(99, 78, 50, 50), l=(99, 30, 0, 0), ol=62, fc=9, ff=0, kvs=6),
+        op(r=(99, 95, 60, 60), l=(99, 10, 0, 0), ol=58, fc=13, ff=35, kvs=7)],
+        fb=6, lpms=0)),
+    ("HARPSI SNT", voice("HARPSI SNT", 5, [
+        op(r=(99, 40, 26, 50), l=(99, 75, 0, 0), ol=96, kvs=1, rs=3),
+        op(r=(99, 55, 35, 50), l=(99, 70, 0, 0), ol=80, fc=4, kvs=3, rs=3),
+        op(r=(99, 40, 26, 50), l=(99, 75, 0, 0), ol=92, det=11, kvs=1, rs=3),
+        op(r=(99, 60, 35, 50), l=(99, 60, 0, 0), ol=76, fc=5, ff=0, kvs=4),
+        op(r=(99, 42, 28, 50), l=(99, 72, 0, 0), ol=84, fc=2, det=3, kvs=1),
+        op(r=(99, 70, 40, 50), l=(99, 50, 0, 0), ol=74, fc=11, kvs=5)],
+        fb=5, lpms=0)),
 ]
 
 
