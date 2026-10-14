@@ -1350,17 +1350,22 @@ static void splash_band(uint32_t y, uint32_t h, int32_t ly, const char *const *l
     cv_blit(SPL_X0, y);
 }
 #include "simorgh_splash.h"                      /* Simorgh fork: full-colour 240 x 240 splash (tools/gen_simorgh_art.py) */
-static void draw_splash(void)
+static void draw_splash(void)                       /* 120 x 120, 3 bpp LSB-first, each pixel drawn 2 x 2 */
 {
-    static uint16_t row[SIMORGH_W];
-    uint32_t x, y;
+    static uint16_t row[2u * SIMORGH_W];
+    uint32_t x, y, bit = 0;
     (void)splash_band; (void)SPLASH_LINES;
     for (y = 0; y < SIMORGH_H; y++) {
-        const uint8_t *r = SIMORGH_PX + y * SIMORGH_W;
-        lcd_sync();                                 /* the previous row's DMA is done before row[] is rewritten */
-        for (x = 0; x < SIMORGH_W; x++)
-            row[x] = SIMORGH_PAL[r[x]];
-        lcd_blit(0, y, SIMORGH_W, 1, row);
+        lcd_sync();                                 /* the previous rows' DMA is done before row[] is rewritten */
+        for (x = 0; x < SIMORGH_W; x++, bit += 3u) {
+            uint32_t i = bit >> 3, v = SIMORGH_PX[i] >> (bit & 7u);
+            if ((bit & 7u) > 5u)
+                v |= (uint32_t)SIMORGH_PX[i + 1u] << (8u - (bit & 7u));
+            row[2u * x] = row[2u * x + 1u] = SIMORGH_PAL[v & 7u];
+        }
+        lcd_blit(0, 2u * y, 2u * SIMORGH_W, 1, row);
+        lcd_sync();
+        lcd_blit(0, 2u * y + 1u, 2u * SIMORGH_W, 1, row);
     }
     lcd_sync();
 }

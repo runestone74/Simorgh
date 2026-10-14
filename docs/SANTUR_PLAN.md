@@ -7,7 +7,7 @@ Simorgh är en fork av [Felucca](https://github.com/hugelton/Felucca) (GPL-3.0) 
 - Typsnitt: förrastrerade bitmappar för ASCII och Latin-1 (`tools/gen_aa_font.py`). Arabisk skrift och shaping saknas, så enheten visar dastgah-namnen translittererade och persisk skrift används bara på webben och i dokumentationen.
 
 ## Gjort i den här grenen
-1. **Startskärm i färg:** en Simorgh-illustration i 240 × 240 med 256 färger med dithering i 8 bpp, beskuren ur det godkända konstverket (simorgh_art.jpg) (57,6 KB + palett 512 B). Den genereras av `tools/gen_simorgh_art.py` till `firmware/src/simorgh_splash.h` och ritas av `draw_splash` (`ui_draw.c`), både i firmware och i emulatorn.
+1. **Startskärm i färg:** en Simorgh-illustration i 120 × 120 med 8 färger och dithering i 3 bpp, ritad 2× till 240 × 240, beskuren ur det godkända konstverket (simorgh_art.jpg): 5 416 B. Den genereras av `tools/gen_simorgh_art.py` till `firmware/src/simorgh_splash.h` och ritas av `draw_splash` (`ui_draw.c`), både i firmware och i emulatorn.
 2. **Grafik** i `assets/simorgh/`: illustration, banner, startskärmsförhandsvisning och santur-ikon. Allt är ritat med kod, och den persiska texten är satt i Vazirmatn (OFL), men bara i bannern.
 3. **FM6-presets** (egna, inga DX7-ROM-data): `SANTUR FM` (F9), `DULCIMER` (F10) och `HARPSI SNT` (F11).
    OBS: SLOT-index OWN och B1–B32 flyttas tre steg, så sparade projekt från Felucca som använder bank- eller OWN-patchar kan peka fel.
