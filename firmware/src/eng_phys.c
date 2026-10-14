@@ -41,11 +41,13 @@
 #include "phys_dsp.c"
 #include "phys_symp.c"
 
-enum { PM_MODAL, PM_STRING, PM_MEMB, PM_SYMP, PM_SANTUR, PM_COUNT };   /* SANTUR: Simorgh */
+/* 4 is not a model: a PHYS MODEL 4 in a store is the old DRUM (core.h drum_from_phys moves it to the DRUM engine), so
+ * it is an alias of SYMP (enum_step skips it by its name) and Simorgh's SANTUR is 5 */
+enum { PM_MODAL, PM_STRING, PM_MEMB, PM_SYMP, PM_SYMP4, PM_SANTUR, PM_COUNT };
 #define PHYS_POLY 3
 /* output: model 1.0 -> this (VOICE_FS scale), then a soft knee; per model (a strike of all the modes in
  * phase peaks high but is short) */
-static const int32_t PHYS_GAIN[PM_COUNT] = {28000, 12000, 90000, 12000, 15000};
+static const int32_t PHYS_GAIN[PM_COUNT] = {28000, 12000, 90000, 12000, 12000, 15000};
 
 typedef struct {
     uint8_t model;               /* PM_* the state belongs to */
@@ -58,7 +60,7 @@ typedef struct {
 
 ENG_MEM_FITS("PHYS", sizeof(phys_slot_t) * PHYS_POLY);   /* (it sets ENG_MEM_PART) */
 
-static const char *const N_PHYS_MODEL[] = {"MODAL", "STRNG", "MEMB", "SYMP", "SANTR"};
+static const char *const N_PHYS_MODEL[] = {"MODAL", "STRNG", "MEMB", "SYMP", "SYMP", "SANTR"};
 static const char *const N_PHYS_CHORD[] = {"OCT", "5TH", "4TH", "MAJ", "MIN", "SUS", "7TH", "ROOT", 0};
 /* per model: STRC .. EXC under their own names (phys_desc; range and default as edit[], 0 = edit[]) */
 static const param_desc_t PHYS_D_HARM = {"HARM", F_PCT, 0, 127, 64, 0, 0};
@@ -66,13 +68,18 @@ static const param_desc_t PHYS_D_BEND = {"BEND", F_PCT, 0, 127, 0, 0, 0};
 static const param_desc_t PHYS_D_CHRD = {"CHRD", F_INT, 0, 127, 64, N_PHYS_CHORD, 0};
 static const param_desc_t PHYS_D_SYMP = {"SYMP", F_PCT, 0, 127, 20, 0, 0};
 static const param_desc_t PHYS_D_BUZZ = {"BUZZ", F_PCT, 0, 127, 0, 0, 0};
-/* SANTUR: {MODEL, CRSE, BRIT, DAMP, SYMP, ACC, MZRB, EXC} */
+/* SANTUR: {MODEL, CRSE, BRIT, RING, SYMP, VELO, MZRB, DMPR} */
+static const char *const N_PHYS_RING[] = {"2.2", "2.7", "3.5", "4.7", "5.4", "6.2", "7.0", "8.6", "9.8", "10.9", "11.4", "12.2", "12.7", "13.2", "14.2", "16.0", 0};   /* T60 of a struck D4 in seconds, RING's 16 bands (measured) */
+static const param_desc_t PHYS_D_RING = {"RING", F_INT, 0, 127, 124, N_PHYS_RING, "s"};
+static const param_desc_t PHYS_D_VELO = {"VELO", F_PCT, 0, 127, 96, 0, 0};   /* velocity -> strike strength + hardness */
+static const param_desc_t PHYS_D_DMPR = {"DMPR", F_PCT, 0, 127, 0, 0, 0};    /* on key-up: 0 rings out .. damped */
 static const param_desc_t PHYS_D_CRSE = {"CRSE", F_PCT, 0, 127, 48, 0, 0};   /* the course's detune, 0 .. ~16 cents */
 static const param_desc_t PHYS_D_MZRB = {"MZRB", F_PCT, 0, 127, 80, 0, 0};   /* the mezrab: soft felt .. bare wood */
 static const param_desc_t *const PHYS_DESC[PM_COUNT][8] = {
     [PM_MEMB] = {0, &PHYS_D_HARM, 0, 0, 0, 0, &PHYS_D_BEND, 0},
     [PM_SYMP] = {0, &PHYS_D_CHRD, 0, 0, &PHYS_D_SYMP, 0, &PHYS_D_BUZZ, 0},
-    [PM_SANTUR] = {0, &PHYS_D_CRSE, 0, 0, &PHYS_D_SYMP, 0, &PHYS_D_MZRB, 0},
+    [PM_SYMP4] = {0, &PHYS_D_CHRD, 0, 0, &PHYS_D_SYMP, 0, &PHYS_D_BUZZ, 0},
+    [PM_SANTUR] = {0, &PHYS_D_CRSE, 0, &PHYS_D_RING, &PHYS_D_SYMP, &PHYS_D_VELO, &PHYS_D_MZRB, &PHYS_D_DMPR},
 };
 
 static const param_desc_t *phys_desc(const track_t *t, uint32_t k)
@@ -123,6 +130,7 @@ static void phys_reset(phys_slot_t *S, uint32_t md, uint32_t seed)
     switch (md) {
     case PM_STRING:
     case PM_SYMP:                                        /* (the main string is the union's px_string_t) */
+    case PM_SYMP4:
     case PM_SANTUR:
         S->u.s.rng = seed;
         S->u.s.src = 1u << 30;
@@ -210,14 +218,24 @@ static void phys_render(track_t *t, voice_t *v, int32_t *out, uint32_t n, const 
         px_string_blk_t B;
         uint32_t f[PX_NSYMP];
         int32_t det = p[P_E1] >> 1;                      /* 1/16 st */
+        int32_t vs = p[P_E5], vel = v->vel;              /* VELO: how much the velocity counts */
+        int32_t k = 127 - vs + ((vs * vel) >> 7);        /* strike strength 0..127 */
+        int32_t mz = clamp(p[P_E6] + (((vel - 64) * vs) >> 8), 0, 127);   /* soft: felt, hard: wood */
+        int32_t rd = (48 + ((p[P_E3] * 79) >> 7)) * 516;   /* RING 0..127 -> loop damping 48..127: ~1.5 .. 16 s */
+        int32_t dd = v->gate ? rd : px_m(rd, (127 - p[P_E7]) * 516, 16);   /* DMPR on key-up (a pedal holds the gate) */
         f[0] = pitch_inc(clamp(m->pitch16 + det, 0, 2047));
         f[1] = pitch_inc(clamp(m->pitch16 - det, 0, 2047));
         f[2] = pitch_inc(clamp(m->pitch16 + 192 + (det >> 2), 0, 2047));
-        px_string_block(&B, &S->u.y.s, f0, 30000 - p[P_E6] * 220, (brit >> 1) + (brit >> 2), damp, acc, 0, 0);
+        px_string_block(&B, &S->u.y.s, f0, 30000 - mz * 220, (brit >> 1) + (brit >> 2), dd, (64 + (k >> 1)) * 516, 0, 0);
         px_string_excite(&B, &S->u.y.s, ax, n);
         px_string_run(&B, &S->u.y.s, ax, y, n);
-        px_symp_block(&S->u.y, f, (brit >> 2) + (brit >> 3), damp, pos * 516);
+        px_symp_block(&S->u.y, f, (brit >> 2) + (brit >> 3), dd, pos * 516);
         px_symp_run(&S->u.y, y, y, n);
+        k = (k + 48) * 373;                              /* amplitude: Q16, 0.27 .. 1.0 (the accent adds more) */
+        for (i = 0; i < n; i++) {
+            y[i] = px_m(y[i], k, 16);
+            ax[i] = 0;
+        }
         break;
     }
     default: {                                           /* SYMP */
@@ -259,7 +277,7 @@ static const preset_t PHYS_PRESETS[] = {
     {"HARP", {PM_SYMP, 8, 62, 74, 60, 90, 0, 0}, {0, 100, 127, 80}, 0, 0, FX(0, 20, 20, 60), PAT(3)},
     /* Simorgh: santur - bright metal strings, octave/unison courses ringing along, long decay, hard mezrab */
     /* SANTUR: {MODEL, CRSE, BRIT, DAMP, SYMP, ACC, MZRB, EXC} */
-    {"SANTUR", {PM_SANTUR, 40, 30, 124, 84, 120, 40, 0}, {0, 110, 127, 127}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
+    {"SANTUR", {PM_SANTUR, 40, 30, 124, 84, 96, 40, 0}, {0, 110, 127, 127}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
     {"SANTUR OLD", {PM_SYMP, 0, 112, 118, 72, 120, 20, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
     {"SANTUR STR", {PM_STRING, 70, 108, 118, 18, 120, 0, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 20, 25, 50), PAT(3)},
 };

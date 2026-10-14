@@ -29,3 +29,19 @@ pip install Pillow fonttools      # + arabic-reshaper/raqm bara för bannern
 python3 tools/gen_simorgh_art.py --font Vazirmatn-Bold.ttf
 ./build.sh && sh web/emu/build.sh
 ```
+
+## SANTR-modellen: reglage (PHYS, MODEL = SANTR)
+| Sida / ratt | Namn | Vad | MIDI CC |
+|---|---|---|---|
+| BODY E1 | CRSE | Körens avstämning (0 till ~16 cent, svävning) | 76 |
+| BODY E2 | BRIT | Ljushet | 74 (standard) |
+| BODY E3 | RING | Klangtid, visas som T60 i sekunder (2,2–16 s, uppmätt på D4) | 77 |
+| BODY E4 | SYMP | Medklingande strängar (kör och oktav) | 78 |
+| EXCT E5 | VELO | Velocitykänslighet: anslagsstyrka och mezrab-hårdhet (0 = fast) | 79 |
+| EXCT E6 | MZRB | Mezrab: filt till trä (ljus attack) | 80 |
+| EXCT E7 | DMPR | Dämpare vid tangent upp: 0 = klingar ut, 127 = dämpas direkt | 81 |
+| – | Pedal | CC64 håller tangenterna, så DMPR väntar (dämparlyft) | 64 |
+
+- **Velocity:** ett mjukt anslag ger en svagare och mörkare ton (filtkänsla), ett hårt ett starkare anslag med ljusare träklick.
+- **Lagring:** värdena sparas i presets och projekt som vanliga E-parametrar.
+- **MODEL-värde:** SANTR har värdet 5. Värdet 4 är reserverat eftersom gamla sparfiler tolkar PHYS MODEL 4 som DRUM.

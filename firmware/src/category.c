@@ -29,11 +29,11 @@ static const char *const PRESET_CAT[16] = {
     "BLLUP",                     /* 6 TRIO: FAT BASS, ARP LEAD, SYNC LEAD, RING BELL, CHIP CHOIR */
     "KKKKK",                     /* 7 WHEEL: the organs */
     "PFPP",                      /* 8 GRAIN: CLOUD PAD, GLITCH, FROZEN, SHIMMER */
-    "UUUPUDDPU",                 /* 9 PHYS: BELL TREE, MARIMBA, PLUCK, BOWED METAL, KALIMBA, HAND DRUM, TOMS, DRONE
-                                  * STRING, HARP */
+    "UUUPUDDPUUUU",              /* 9 PHYS: BELL TREE, MARIMBA, PLUCK, BOWED METAL, KALIMBA, HAND DRUM, TOMS, DRONE
+                                  * STRING, HARP, SANTUR, SANTUR OLD, SANTUR STR (Simorgh) */
     "DDDD",                      /* 10 DRUM: DRUM KIT; 1.5.6: DEEP KIT, TIGHT KIT, PERC KIT */
     "FFFF",                      /* 11 NOISE: WIND, RAIN, ARCADE, METAL */
-    "KUBLPUKU",                  /* 12 FM6: TINE EP, BELL, FM BASS, BRASS, PAD, MARIMBA, ORGAN, PLUCK */
+    "KUBLPUKUUUK",               /* 12 FM6: TINE EP, BELL, FM BASS, BRASS, PAD, MARIMBA, ORGAN, PLUCK, SANTUR FM, DULCIMER, HARPSI SNT */
     "DD",                        /* 13 SLICE: CHOP, STUTTER */
 };
 static uint32_t preset_cat(uint32_t e, uint32_t k)    /* factory preset k of engine e */

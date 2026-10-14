@@ -301,6 +301,24 @@ static void __attribute__((noinline)) midi_cc_map(track_t *t, uint32_t cc, uint3
     }
     midi_cc_set(t, id, value);
 }
+/* Simorgh: the PHYS engine's own CCs (the SANTR model's names; other models: the same E slot under its name):
+ * 76 CRSE (E1), 77 RING (E3), 78 SYMP (E4), 79 VELO (E5), 80 MZRB (E6), 81 DMPR (E7); CC74 BRIT as the standard map,
+ * CC64 the pedal: it holds the keys, so DMPR waits (a damper lift) */
+static const uint8_t SIMORGH_CC[][2] = {{76, P_E0 + 1}, {77, P_E0 + 3}, {78, P_E0 + 4}, {79, P_E0 + 5}, {80, P_E0 + 6},
+                                         {81, P_E0 + 7}};
+static void __attribute__((noinline)) midi_cc_simorgh(track_t *t, uint32_t cc, uint32_t value)
+{
+    uint32_t i;
+    if (eng_idx(t->eng_req) == ENGI_PHYS && cc >= 76u && cc <= 81u && !midi_learned(cc, value))
+        for (i = 0; i < NELEM(SIMORGH_CC); i++)
+            if (SIMORGH_CC[i][0] == cc) {
+                midi_cc_set(t, SIMORGH_CC[i][1], value);
+                return;
+            }
+    if (eng_idx(t->eng_req) == ENGI_PHYS && cc >= 76u && cc <= 81u)
+        return;                                     /* (learned: midi_learned set it) */
+    midi_cc_map(t, cc, value);
+}
 
 static void midi_control(uint32_t ch, uint32_t cc, uint32_t value)
 {
@@ -356,7 +374,7 @@ static void midi_control(uint32_t ch, uint32_t cc, uint32_t value)
         }
         break;
     default:
-        midi_cc_map(midi_track(ch), cc, value);
+        midi_cc_simorgh(midi_track(ch), cc, value);
         break;
     }
 }

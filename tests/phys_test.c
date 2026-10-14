@@ -27,7 +27,7 @@
 #endif
 
 static int fails;
-static const char *const MN[PM_COUNT] = {"MODAL", "STRING", "MEMB", "SYMP", "SANTUR"};
+static const char *const MN[PM_COUNT] = {"MODAL", "STRING", "MEMB", "SYMP", "SYMP4", "SANTUR"};
 
 /* ------------------------------------------------------------ stability --- */
 typedef struct { int32_t peak; int64_t sum; uint32_t n, clamp; int32_t tail; } st_t;
@@ -373,7 +373,7 @@ static void play_model(uint32_t f, uint32_t md)
 
 static void demos(const char *dir)
 {
-    static const char *const MD[PM_COUNT] = {"model_modal", "model_string", "model_memb", "model_symp"};
+    static const char *const MD[PM_COUNT] = {"model_modal", "model_string", "model_memb", "model_symp", "model_symp4", "model_santur"};
     uint32_t i;
     char name[64];
     for (i = 0; i < ENG_PHYS.npresets && i < NPHRASE; i++) {

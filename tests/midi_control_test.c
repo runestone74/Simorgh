@@ -918,19 +918,19 @@ static int pc_test(void)
         pc(1, 4); frame();
         ok = f->preset == 4 && f->p[P_E7] == 4 && fm6_slot[1] == 4u && f->p[P_E6] == 30;   /* PAD: F5, DTUN 30 */
         bad += check("  FM6: 0..7 its presets (PC 4: PAD, SLOT F5, its DTUN)", ok);
-        pc(1, 8); frame();
+        pc(1, FM6_NFACTORY); frame();
         ok = f->p[P_E7] == 4 && fm6_slot[1] == 4u;
         fm6_bank_used = 1u | 1u << 5;
         fm6_bank_read = pc_bank_read;
-        pc(1, 8); frame();
+        pc(1, FM6_NFACTORY); frame();
         fm6_unpack(FM6_FACTORY[2], v);
         ok &= f->p[P_E7] == (int16_t)(FM6_OWN + 1u) && fm6_slot[1] == FM6_OWN + 1u && pc_bank_k == 0u &&
               !memcmp(v, fm6_patch[1], FP_SIZE) && f->p[P_E6] == 30 && f->preset == 4;
-        pc(1, 9); frame();
+        pc(1, FM6_NFACTORY + 1u); frame();
         ok &= f->p[P_E7] == (int16_t)(FM6_OWN + 1u);
-        pc(1, 13); frame();
+        pc(1, FM6_NFACTORY + 5u); frame();
         ok &= f->p[P_E7] == (int16_t)(FM6_OWN + 6u) && pc_bank_k == 5u;
-        pc(1, 8u + FM6_NBANK); frame();
+        pc(1, FM6_NFACTORY + FM6_NBANK); frame();
         ok &= f->p[P_E7] == (int16_t)(FM6_OWN + 6u);
         pc(1, 0); frame();
         ok &= f->p[P_E7] == 0 && fm6_slot[1] == 0u && f->p[P_E6] == 0;
