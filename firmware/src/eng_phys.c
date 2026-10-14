@@ -259,7 +259,7 @@ static const preset_t PHYS_PRESETS[] = {
     {"HARP", {PM_SYMP, 8, 62, 74, 60, 90, 0, 0}, {0, 100, 127, 80}, 0, 0, FX(0, 20, 20, 60), PAT(3)},
     /* Simorgh: santur - bright metal strings, octave/unison courses ringing along, long decay, hard mezrab */
     /* SANTUR: {MODEL, CRSE, BRIT, DAMP, SYMP, ACC, MZRB, EXC} */
-    {"SANTUR", {PM_SANTUR, 40, 30, 116, 84, 120, 40, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
+    {"SANTUR", {PM_SANTUR, 40, 30, 124, 84, 120, 40, 0}, {0, 110, 127, 127}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
     {"SANTUR OLD", {PM_SYMP, 0, 112, 118, 72, 120, 20, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 15, 25, 50), PAT(3)},
     {"SANTUR STR", {PM_STRING, 70, 108, 118, 18, 120, 0, 0}, {0, 110, 127, 100}, 0, 0, FX(0, 20, 25, 50), PAT(3)},
 };
