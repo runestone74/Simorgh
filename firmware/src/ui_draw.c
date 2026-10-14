@@ -1356,12 +1356,10 @@ static void draw_splash(void)
     uint32_t x, y;
     (void)splash_band; (void)SPLASH_LINES;
     for (y = 0; y < SIMORGH_H; y++) {
-        const uint8_t *r = SIMORGH_PX + y * (SIMORGH_W / 2u);
+        const uint8_t *r = SIMORGH_PX + y * SIMORGH_W;
         lcd_sync();                                 /* the previous row's DMA is done before row[] is rewritten */
-        for (x = 0; x < SIMORGH_W; x += 2u) {
-            row[x] = SIMORGH_PAL[r[x / 2u] >> 4];
-            row[x + 1u] = SIMORGH_PAL[r[x / 2u] & 15u];
-        }
+        for (x = 0; x < SIMORGH_W; x++)
+            row[x] = SIMORGH_PAL[r[x]];
         lcd_blit(0, y, SIMORGH_W, 1, row);
     }
     lcd_sync();
